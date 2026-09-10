@@ -1,0 +1,563 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark, .dark *));
+
+:root {
+  /* Emil Kowalski / Apple Design Motion & Easing Tokens */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --spring-duration: 0.35s;
+
+  /* Optical Typography Tracking Tokens */
+  --tracking-display: -0.025em;
+  --tracking-heading: -0.018em;
+  --tracking-body: 0em;
+  --tracking-caption: 0.01em;
+}
+
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+    letter-spacing: var(--tracking-body);
+  }
+
+  h1, h2, .display-heading {
+    letter-spacing: var(--tracking-display);
+    line-height: 1.12;
+  }
+
+  h3, h4, .section-heading {
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.25;
+  }
+}
+
+/* Certificate & Diploma Typography */
+.font-cinzel {
+  font-family: 'Cinzel', Georgia, serif;
+}
+.font-cormorant {
+  font-family: 'Cormorant Garamond', Garamond, Georgia, serif;
+}
+.font-signature {
+  font-family: 'Great Vibes', 'Alex Brush', cursive;
+}
+.font-script {
+  font-family: 'Alex Brush', 'Great Vibes', cursive;
+}
+
+/* Apple-style subtle glassmorphism with light-catching top border */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.dark .glass-nav {
+  background: rgba(15, 20, 31, 0.88);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.dark .glass-card {
+  background: rgba(22, 29, 42, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-dark {
+  background: rgba(20, 26, 38, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Zero-Latency Instant Press Feedback Utility */
+.apple-pressable {
+  transition: transform 120ms var(--ease-out), opacity 120ms var(--ease-out);
+  transform-origin: center;
+}
+.apple-pressable:active {
+  transform: scale(0.97);
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Print style for official certificates in A4 Landscape: 297 mm x 210 mm (11.69" x 8.27") */
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  header,
+  nav,
+  footer,
+  aside,
+  .no-print,
+  [role="banner"],
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  html, body {
+    width: 297mm !important;
+    height: 210mm !important;
+    max-height: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #printable-certificate,
+  #printable-certificate *,
+  #student-certificate-view,
+  #student-certificate-view *,
+  #profile-certificate-view,
+  #profile-certificate-view *,
+  #modal-certificate,
+  #modal-certificate *,
+  #booking-qr-pass,
+  #booking-qr-pass *,
+  #active-ticket-pass,
+  #active-ticket-pass * {
+    visibility: visible;
+  }
+
+  #booking-qr-pass,
+  #active-ticket-pass {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 380px !important;
+    max-width: 380px !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-inside: avoid !important;
+    break-after: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printable-certificate,
+  #student-certificate-view,
+  #profile-certificate-view,
+  #modal-certificate {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    max-width: 297mm !important;
+    max-height: 210mm !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-inside: avoid !important;
+    break-after: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Continuous scrolling marquee from Left to Right */
+@keyframes scrollLeftToRight {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0%, 0, 0);
+  }
+}
+
+@keyframes scrollRightToLeft {
+  0% {
+    transform: translate3d(0%, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-scroll-ltr {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: scrollLeftToRight 45s linear infinite;
+}
+
+.animate-scroll-ltr-fast {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: scrollLeftToRight 28s linear infinite;
+}
+
+.animate-scroll-ltr-slow {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: scrollLeftToRight 65s linear infinite;
+}
+
+.animate-scroll-rtl {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: scrollRightToLeft 45s linear infinite;
+}
+
+.animate-scroll-rtl-fast {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: scrollRightToLeft 28s linear infinite;
+}
+
+.animate-scroll-rtl-slow {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: scrollRightToLeft 65s linear infinite;
+}
+
+.paused {
+  animation-play-state: paused !important;
+}
+
+.animate-scroll-ltr:hover,
+.animate-scroll-ltr-fast:hover,
+.animate-scroll-ltr-slow:hover,
+.animate-scroll-rtl:hover,
+.animate-scroll-rtl-fast:hover,
+.animate-scroll-rtl-slow:hover {
+  animation-play-state: paused;
+}
+
+/* Dynamic Ambient Aurora Background Glow */
+@keyframes auroraPulse1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate3d(30px, -20px, 0) scale(1.18);
+    opacity: 0.75;
+  }
+}
+
+@keyframes auroraPulse2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate3d(-35px, 25px, 0) scale(0.92);
+    opacity: 0.7;
+  }
+}
+
+@keyframes auroraPulse3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(0.95);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(20px, 15px, 0) scale(1.12);
+    opacity: 0.65;
+  }
+}
+
+.animate-aurora-1 {
+  animation: auroraPulse1 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.animate-aurora-2 {
+  animation: auroraPulse2 15s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.animate-aurora-3 {
+  animation: auroraPulse3 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+/* Gen Z Luminous Wipe / Shine Animation */
+@keyframes genZWipe {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(220%) skewX(-18deg);
+    opacity: 0;
+  }
+}
+
+.gen-z-wipe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(197, 160, 99, 0.5) 70%,
+    transparent 100%
+  );
+  transform: translateX(-120%) skewX(-18deg);
+  pointer-events: none;
+  z-index: 15;
+}
+
+.group\/card:hover .gen-z-wipe {
+  animation: genZWipe 0.85s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes appleSkeletonSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.apple-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.6) 0%,
+    rgba(241, 245, 249, 0.95) 45%,
+    rgba(226, 232, 240, 0.6) 90%
+  );
+  background-size: 250% 100%;
+  animation: appleSkeletonSweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.dark .apple-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.05) 90%
+  );
+  background-size: 250% 100%;
+  animation: appleSkeletonSweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Apple-style Digital Registration Pass Shimmer & Ambient Pulse */
+@keyframes ticketShimmerSweep {
+  0% {
+    transform: translateX(-160%) skewX(-20deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  60% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(260%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+.ticket-shimmer-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 35%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0.25) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: ticketShimmerSweep 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.dark .ticket-shimmer-effect {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 35%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.04) 65%,
+    transparent 100%
+  );
+}
+
+@keyframes activePassPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(0, 113, 227, 0.15), 0 2px 8px -2px rgba(0, 113, 227, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.32), 0 6px 20px -4px rgba(0, 113, 227, 0.18);
+  }
+}
+
+.dark .active-pass-pulse {
+  animation: activePassPulseDark 3.6s ease-in-out infinite;
+}
+
+@keyframes activePassPulseDark {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(41, 151, 255, 0.2), 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(41, 151, 255, 0.42), 0 6px 22px rgba(41, 151, 255, 0.16);
+  }
+}
+
+.active-pass-pulse {
+  animation: activePassPulse 3.6s ease-in-out infinite;
+}
+
+/* =========================================================================
+   Apple Accessibility Guidelines (Motion, Transparency, Contrast)
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-scroll-ltr,
+  .animate-scroll-ltr-fast,
+  .animate-scroll-ltr-slow,
+  .animate-scroll-rtl,
+  .animate-scroll-rtl-fast,
+  .animate-scroll-rtl-slow,
+  .animate-aurora-1,
+  .animate-aurora-2,
+  .animate-aurora-3,
+  .gen-z-wipe {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .ticket-shimmer-effect,
+  .apple-skeleton-shimmer,
+  .active-pass-pulse {
+    animation: none !important;
+  }
+
+  .apple-pressable:active {
+    transform: none !important;
+    opacity: 0.7 !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-nav,
+  .glass-card,
+  .glass-dark {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .glass-nav {
+    background: #FFFFFF !important;
+  }
+  .dark .glass-nav {
+    background: #0F141F !important;
+  }
+
+  .glass-card {
+    background: #FFFFFF !important;
+  }
+  .dark .glass-card {
+    background: #161D2A !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .glass-nav,
+  .glass-card,
+  .glass-dark {
+    border-color: #000000 !important;
+  }
+  .dark .glass-nav,
+  .dark .glass-card,
+  .dark .glass-dark {
+    border-color: #FFFFFF !important;
+  }
+}
+
+/* =========================================================================
+   A4 Landscape Certificate Print Settings: 297mm × 210mm (11.69" × 8.27")
+   ========================================================================= */
+
+
+
+

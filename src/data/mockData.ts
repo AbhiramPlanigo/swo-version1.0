@@ -1,0 +1,260 @@
+import { 
+  User, 
+  EventItem, 
+  Registration, 
+  Announcement, 
+  EventResult, 
+  Certificate, 
+  Committee, 
+  ResearchSurvey,
+  EventSuggestion 
+} from '../types';
+
+export const INITIAL_STUDENT: User = {
+  id: 'usr_student_01',
+  name: '',
+  role: 'student',
+  regNo: '',
+  department: '',
+  year: '',
+  campus: 'Yeshwanthpur Campus, Bengaluru',
+  email: '',
+  phone: '',
+  avatar: '',
+};
+
+export const INITIAL_ADMIN: User = {
+  id: 'usr_admin_01',
+  name: 'SWO Admin',
+  role: 'admin',
+  regNo: 'SWO-ADMIN',
+  department: 'Student Welfare Office',
+  year: 'Administration',
+  campus: 'Yeshwanthpur Campus, Bengaluru',
+  email: 'swo.yeshwanthpur@christuniversity.in',
+  phone: '',
+  avatar: '/swo-byc-logo.png',
+};
+
+export const INITIAL_EVENTS: EventItem[] = [];
+
+export const INITIAL_REGISTRATIONS: Registration[] = [];
+
+export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: 'ann_01',
+    title: 'Guidelines for Flagship Talk Series: Mandatory Physical ID & Entry Protocol',
+    content: 'All students registered for the Ignite Talk Series are hereby notified that entry to the Main Auditorium requires a physical Christ University student smartcard. Digital passes will be scanned at Gate A and Gate B starting 02:45 PM IST. Late entry post 03:20 PM is strictly prohibited to maintain decorum.',
+    category: 'Talk Series',
+    date: '2026-09-05',
+    targetDept: 'All Departments',
+    targetYear: 'All Batches',
+    isPinned: true,
+    readBy: [],
+    authorName: 'Dr. Mathew K. Varghese',
+    authorRole: 'Student Welfare Officer',
+  },
+  {
+    id: 'ann_02',
+    title: 'Darpan 2026: Preliminary Round Auditions Schedule Released',
+    content: 'Audition rosters for Dance, Music, and Literary categories have been published on notice boards and departmental portals. Participants are requested to report 30 minutes prior to their allocated slot with required backing tracks in standard MP3 format on a USB drive.',
+    category: 'Auditions',
+    date: '2026-09-04',
+    targetDept: 'All Departments',
+    targetYear: 'All Batches',
+    isPinned: true,
+    readBy: [],
+    authorName: 'SWO Cultural Committee',
+    authorRole: 'Convenor',
+  },
+  {
+    id: 'ann_03',
+    title: 'Recruitment Drive: SWO Student Volunteer Wings (AY 2026-27)',
+    content: 'Applications are formally open for student leadership roles across the Media & Tech Wing, Protocol & Hospitality Wing, and Social Action Wings. Students with an active academic standing of 75%+ attendance are eligible to apply.',
+    category: 'Circular',
+    date: '2026-09-02',
+    targetDept: 'All Departments',
+    targetYear: '1st & 2nd Year Batches',
+    isPinned: false,
+    readBy: [],
+    authorName: 'Student Welfare Office',
+    authorRole: 'Executive Secretariat',
+  },
+  {
+    id: 'ann_04',
+    title: 'Mental Well-Being Month: Free Confidential Consultations with Visiting Specialists',
+    content: 'In observance of Campus Wellness Month, the SWO Well-Being Cell has arranged walk-in counseling sessions from September 10th to September 30th at the Student Wellness Suite (Block B, Room 304).',
+    category: 'Campus Life',
+    date: '2026-08-28',
+    targetDept: 'All Departments',
+    targetYear: 'All Batches',
+    isPinned: false,
+    readBy: [],
+    authorName: 'SWO Well-Being & Peer Cell',
+    authorRole: 'Faculty Coordinator',
+  },
+];
+
+export const INITIAL_RESULTS: EventResult[] = [];
+
+export const INITIAL_CERTIFICATES: Certificate[] = [];
+
+export const INITIAL_COMMITTEES: Committee[] = [
+  {
+    id: 'com_01',
+    name: 'SWO Cultural & Performing Arts Wing',
+    wing: 'Cultural Wing',
+    leadName: '',
+    deputyName: '',
+    memberCount: 0,
+    email: 'swo.cultural.yp@christuniversity.in',
+    description: 'Responsible for curating Darpan, Bhasha Utsav, In-Bloom, and departmental talent incubation programs.',
+    activeEventsCount: 0,
+    facultyCoordinator: '',
+    members: [],
+  },
+  {
+    id: 'com_02',
+    name: 'SWO Media, Design & Tech Wing',
+    wing: 'Technology & Branding Wing',
+    leadName: '',
+    deputyName: '',
+    memberCount: 0,
+    email: 'swo.tech.yp@christuniversity.in',
+    description: 'Manages digital portals, event visual branding, live audio-visual broadcasts, and hackathons.',
+    activeEventsCount: 0,
+    facultyCoordinator: '',
+    members: [],
+  },
+  {
+    id: 'com_03',
+    name: 'SWO Protocol & Hospitality Wing',
+    wing: 'Dignitary & Event Protocol',
+    leadName: '',
+    deputyName: '',
+    memberCount: 0,
+    email: 'swo.protocol.yp@christuniversity.in',
+    description: 'Ensures stage decorum, VIP escorting, auditorium logistics, and official university protocol.',
+    activeEventsCount: 0,
+    facultyCoordinator: '',
+    members: [],
+  },
+  {
+    id: 'com_04',
+    name: 'SWO Social Action & Community Cell',
+    wing: 'Social Welfare & Outreach',
+    leadName: '',
+    deputyName: '',
+    memberCount: 0,
+    email: 'swo.social.yp@christuniversity.in',
+    description: 'Drives rural educational immersion, environmental drives, blood donation camps, and NGO partnerships.',
+    activeEventsCount: 0,
+    facultyCoordinator: '',
+    members: [],
+  },
+];
+
+export const INITIAL_RESEARCH_SURVEYS: ResearchSurvey[] = [
+  {
+    id: 'surv_01',
+    title: 'Post-Event Quality & Speaker Feedback Survey',
+    description: 'Conducted immediately following University Talk Series and Flagship Cultural events to evaluate speaker engagement, topic relevance, auditorium acoustics, and overall event delivery.',
+    category: 'Post-Event Feedback',
+    deadline: '2026-11-30',
+    responsesCount: 0,
+    totalResponses: 0,
+    targetSample: 250,
+    questionsCount: 4,
+    status: 'Active',
+    questions: [
+      {
+        id: 'q1',
+        label: 'Overall, how would you rate the quality, relevance, and presentation of the event?',
+        type: 'rating',
+      },
+      {
+        id: 'q2',
+        label: 'How was the venue organization, auditorium sound clarity, and seating comfort?',
+        type: 'choice',
+        options: ['Excellent Acoustics & Visuals', 'Good & Comfortable', 'Audio Needs Calibration', 'Seating Crowded'],
+      },
+      {
+        id: 'q3',
+        label: 'Which domain would you most like SWO to bring distinguished speakers for next time?',
+        type: 'choice',
+        options: ['Geopolitics & Global Affairs', 'AI & Emerging Technologies', 'Entrepreneurship & Startups', 'Creative Arts & Literature', 'Mental Health & Work-Life Balance'],
+      },
+      {
+        id: 'q4',
+        label: 'What specific improvement or new feature would you recommend for future SWO events?',
+        type: 'text',
+      },
+    ],
+  },
+  {
+    id: 'surv_02',
+    title: 'SWO Annual Campus Life & Student Well-Being Survey 2026',
+    description: 'An institutional campus welfare study designed by the Directorate of Student Welfare to understand academic-extracurricular balance, wellness initiatives, and campus life improvements on Yeshwanthpur Campus.',
+    category: 'Campus Welfare Research',
+    deadline: '2026-12-15',
+    responsesCount: 0,
+    totalResponses: 0,
+    targetSample: 500,
+    questionsCount: 4,
+    status: 'Active',
+    questions: [
+      {
+        id: 'q1',
+        label: 'How well do SWO initiatives support your holistic personal and creative growth outside academics?',
+        type: 'rating',
+      },
+      {
+        id: 'q2',
+        label: 'What time window works best for weekday cultural and wellness workshops on campus?',
+        type: 'choice',
+        options: ['Afternoon 3:30 PM – 5:00 PM', 'Evening 5:00 PM – 6:30 PM', 'Weekend Saturday Mornings', 'Interspersed during activity hours'],
+      },
+      {
+        id: 'q3',
+        label: 'Which campus welfare initiative requires maximum SWO attention this academic semester?',
+        type: 'choice',
+        options: ['Mental Wellness & Peer Support Cells', 'Open Mic & Informal Arts Platforms', 'Inter-Departmental Sports Leagues', 'Career & Alumni Mentorship Circles'],
+      },
+      {
+        id: 'q4',
+        label: 'Any personal feedback or proposal for the Student Welfare Office team?',
+        type: 'text',
+      },
+    ],
+  },
+  {
+    id: 'surv_03',
+    title: 'Auditorium Facilities, Acoustics & Event Logistics Evaluation',
+    description: 'Technical evaluation of Main Auditorium stage lighting, sound system, registration check-in queues, and QR scanning speed to ensure seamless event operations.',
+    category: 'Infrastructure & Logistics',
+    deadline: '2026-10-31',
+    responsesCount: 0,
+    totalResponses: 0,
+    targetSample: 200,
+    questionsCount: 3,
+    status: 'Active',
+    questions: [
+      {
+        id: 'q1',
+        label: 'Rate the efficiency and speed of the digital QR check-in process at event entrance gates.',
+        type: 'rating',
+      },
+      {
+        id: 'q2',
+        label: 'How would you describe the air-conditioning and acoustic clarity in the Main Auditorium during major events?',
+        type: 'choice',
+        options: ['Optimal & Clear', 'Good overall', 'Sound echoes towards the back', 'Temperature too cold/warm'],
+      },
+      {
+        id: 'q3',
+        label: 'Suggestions to make auditorium check-ins even faster and eliminate entrance queues:',
+        type: 'text',
+      },
+    ],
+  },
+];

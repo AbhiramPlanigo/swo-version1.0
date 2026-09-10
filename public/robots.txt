@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /admin.swo.ypr
+Disallow: /admin
+Disallow: /directorate
