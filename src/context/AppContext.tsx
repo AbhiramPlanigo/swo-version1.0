@@ -471,7 +471,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [events, setEvents] = useState<EventItem[]>(() => getStored('events', INITIAL_EVENTS));
   const [registrations, setRegistrations] = useState<Registration[]>(() => getStored('registrations', INITIAL_REGISTRATIONS));
-  const [announcements, setAnnouncements] = useState<Announcement[]>(() => getStored('announcements', INITIAL_ANNOUNCEMENTS));
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
+    const deletedAnnIds = getStored<string[]>('deleted_announcement_ids', []);
+    const stored = getStored<Announcement[] | null>('announcements', null);
+    if (stored !== null && Array.isArray(stored)) {
+      return stored.filter((a) => !deletedAnnIds.includes(a.id));
+    }
+    return INITIAL_ANNOUNCEMENTS.filter((a) => !deletedAnnIds.includes(a.id));
+  });
   const [certificates, setCertificates] = useState<Certificate[]>(() => getStored('certificates', INITIAL_CERTIFICATES));
   const [results] = useState<EventResult[]>(INITIAL_RESULTS);
   const [committees, setCommittees] = useState<Committee[]>(() => getStored('committees', INITIAL_COMMITTEES));
@@ -488,11 +495,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => getStored('attendance', []));
   const [heroSettings, setHeroSettings] = useState<HeroBannerSettings>(() => getStored('hero_settings', INITIAL_HERO_SETTINGS));
   const [showcaseItems, setShowcaseItems] = useState<ShowcaseItem[]>(() => {
+    const deletedIds = getStored<string[]>('deleted_showcase_ids', []);
     const stored = getStored<ShowcaseItem[] | null>('showcase_items', null);
-    if (stored && Array.isArray(stored) && stored.length > 0) {
-      return stored;
+    if (stored && Array.isArray(stored)) {
+      const active = stored.filter((s) => !deletedIds.includes(s.id));
+      if (active.length > 0) return active;
     }
-    return DEFAULT_SHOWCASE_ITEMS;
+    const defaultActive = DEFAULT_SHOWCASE_ITEMS.filter((s) => !deletedIds.includes(s.id));
+    return defaultActive.length > 0 ? defaultActive : [DEFAULT_SHOWCASE_ITEMS[0]];
   });
   const [savedMediaAssets, setSavedMediaAssets] = useState<MediaAsset[]>(() => {
     const stored = getStored<MediaAsset[] | null>('saved_media_assets', null);
@@ -541,6 +551,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           remoteSurv,
           remoteHero,
           remoteQuote,
+          remoteShowcases,
         ] = await Promise.all([
           SupabaseDataService.fetchEvents(),
           SupabaseDataService.fetchRegistrations(),
@@ -551,6 +562,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           SupabaseDataService.fetchSurveys(),
           SupabaseDataService.fetchHeroSettings(),
           SupabaseDataService.fetchDailyQuote(),
+          SupabaseDataService.fetchShowcaseItems(),
         ]);
 
         if (!isMounted) return;
@@ -558,12 +570,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (remoteEvents !== null) setEvents(remoteEvents);
         if (remoteRegs !== null) setRegistrations(remoteRegs);
         if (remoteAtt !== null) setAttendanceRecords(remoteAtt);
-        if (remoteAnn !== null && remoteAnn.length > 0) setAnnouncements(remoteAnn);
+        if (remoteAnn !== null) {
+          const deletedAnnIds = getStored<string[]>('deleted_announcement_ids', []);
+          setAnnouncements(remoteAnn.filter((a) => !deletedAnnIds.includes(a.id)));
+        }
         if (remoteCerts !== null) setCertificates(remoteCerts);
         if (remoteComms !== null && remoteComms.length > 0) setCommittees(remoteComms);
         if (remoteSurv !== null) {
           const deletedIds = getStored<string[]>('deleted_survey_ids', []);
           setSurveys(remoteSurv.filter((s) => !deletedIds.includes(s.id)));
+        }
+        if (remoteShowcases !== null) {
+          const deletedShowcaseIds = getStored<string[]>('deleted_showcase_ids', []);
+          const activeShowcases = remoteShowcases.filter((s) => !deletedShowcaseIds.includes(s.id));
+          if (activeShowcases.length > 0) {
+            setShowcaseItems(activeShowcases);
+            setStored('showcase_items', activeShowcases);
+            if (activeShowcases[0]) {
+              setHeroSettings(activeShowcases[0]);
+            }
+          }
         }
         if (remoteHero) setHeroSettings(remoteHero);
         if (remoteQuote) setDailyQuote(remoteQuote);
@@ -617,8 +643,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateShowcaseItem = (id: string, updated: Partial<ShowcaseItem>) => {
+    let targetItem: ShowcaseItem | null = null;
+    let targetIndex = 0;
     setShowcaseItems((prev) => {
-      const next = prev.map((item) => (item.id === id ? { ...item, ...updated } : item));
+      const next = prev.map((item, idx) => {
+        if (item.id === id) {
+          targetItem = { ...item, ...updated };
+          targetIndex = idx;
+          return targetItem;
+        }
+        return item;
+      });
       setStored('showcase_items', next);
       if (next.length > 0 && next[0].id === id) {
         setHeroSettings({ ...next[0] });
@@ -627,6 +662,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       return next;
     });
+    if (targetItem) {
+      SupabaseDataService.upsertShowcaseItem(targetItem, targetIndex);
+    }
     showToast('Showcase Updated', 'Changes have been published live to the homepage hero.', 'success');
   };
 
@@ -653,6 +691,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setShowcaseItems((prev) => {
       const next = [...prev, newItem];
       setStored('showcase_items', next);
+      SupabaseDataService.upsertShowcaseItem(newItem, next.length - 1);
       return next;
     });
     showToast('Showcase Added', `"${newItem.tabLabel}" has been added to homepage hero options.`, 'success');
@@ -665,8 +704,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return false;
     }
     const itemToDelete = showcaseItems.find((s) => s.id === id);
+
+    // Track deleted IDs in local storage so mock defaults never resurface them
+    const deletedIds = getStored<string[]>('deleted_showcase_ids', []);
+    const aliasMap: Record<string, string[]> = {
+      'darpan-fest': ['darpan-fest', 'showcase_darpan'],
+      'showcase_darpan': ['darpan-fest', 'showcase_darpan'],
+      'talk-series': ['talk-series', 'showcase_talkseries'],
+      'showcase_talkseries': ['talk-series', 'showcase_talkseries'],
+      'quantum-tech': ['quantum-tech', 'showcase_ai_conclave'],
+      'showcase_ai_conclave': ['quantum-tech', 'showcase_ai_conclave'],
+    };
+    const toAdd = aliasMap[id] || [id];
+    const nextDeletedIds = Array.from(new Set([...deletedIds, ...toAdd]));
+    setStored('deleted_showcase_ids', nextDeletedIds);
+
+    // Remove from Supabase database
+    SupabaseDataService.deleteShowcaseItem(id);
+
     setShowcaseItems((prev) => {
-      const next = prev.filter((item) => item.id !== id);
+      const next = prev.filter((item) => item.id !== id && !toAdd.includes(item.id));
       setStored('showcase_items', next);
       if (next[0]) {
         setHeroSettings({ ...next[0] });
@@ -680,11 +737,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const resetShowcaseItems = () => {
+    setStored('deleted_showcase_ids', []);
     setShowcaseItems(DEFAULT_SHOWCASE_ITEMS);
     setStored('showcase_items', DEFAULT_SHOWCASE_ITEMS);
     setHeroSettings(DEFAULT_SHOWCASE_ITEMS[0]);
     setStored('hero_settings', DEFAULT_SHOWCASE_ITEMS[0]);
     SupabaseDataService.updateHeroSettings(DEFAULT_SHOWCASE_ITEMS[0]);
+    SupabaseDataService.bulkSyncShowcaseItems(DEFAULT_SHOWCASE_ITEMS);
     showToast('Showcase Reset', 'Reverted all showcase items to institutional defaults.', 'info');
   };
 
@@ -1296,6 +1355,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteAnnouncement = (id: string) => {
+    const deletedAnnIds = getStored<string[]>('deleted_announcement_ids', []);
+    setStored('deleted_announcement_ids', Array.from(new Set([...deletedAnnIds, id])));
     setAnnouncements((prev) => prev.filter((a) => a.id !== id));
     SupabaseDataService.deleteAnnouncement(id);
     showToast('Announcement Removed', 'Circular removed successfully.', 'info');

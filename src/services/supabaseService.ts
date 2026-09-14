@@ -10,6 +10,7 @@ import {
   HeroBannerSettings,
   DailyQuote,
   EventResult,
+  ShowcaseItem,
 } from '../types';
 
 // ==============================================================================
@@ -304,6 +305,47 @@ export const mapDailyQuoteToDb = (quote: DailyQuote): Record<string, any> => ({
   updated_at: quote.updatedAt || new Date().toISOString(),
 });
 
+export const mapShowcaseFromDb = (row: any): ShowcaseItem => ({
+  id: row.id,
+  tabLabel: row.tab_label || 'Showcase',
+  tabEmoji: row.tab_emoji || '🌟',
+  badge: row.badge || 'CHRIST UNIVERSITY CAMPUS SHOWCASE 2026',
+  title: row.title || '',
+  subtitle: row.subtitle || '',
+  description: row.description || '',
+  date: row.date || '',
+  time: row.time || '',
+  venue: row.venue || '',
+  locationBadge: row.location_badge || 'Main Auditorium • Campus Stage',
+  speakers: Array.isArray(row.speakers) ? row.speakers : [],
+  accentColor: row.accent_color || '#C5A063',
+  bgImage: row.bg_image || '/assets/christ-yeshwanthpur-campus.jpg',
+  tags: Array.isArray(row.tags) ? row.tags : [],
+  gradient: row.gradient || undefined,
+  isFlagship: Boolean(row.is_flagship),
+});
+
+export const mapShowcaseToDb = (item: ShowcaseItem, sortOrder: number = 0): Record<string, any> => ({
+  id: item.id,
+  tab_label: item.tabLabel,
+  tab_emoji: item.tabEmoji || '🌟',
+  badge: item.badge,
+  title: item.title,
+  subtitle: item.subtitle,
+  description: item.description,
+  date: item.date,
+  time: item.time,
+  venue: item.venue,
+  location_badge: item.locationBadge || 'Main Auditorium • Campus Stage',
+  speakers: item.speakers || [],
+  accent_color: item.accentColor,
+  bg_image: item.bgImage,
+  tags: item.tags || [],
+  sort_order: sortOrder,
+  is_active: true,
+  updated_at: new Date().toISOString(),
+});
+
 // ==============================================================================
 // SUPABASE DATA SERVICE OPERATIONS
 // ==============================================================================
@@ -579,6 +621,56 @@ export const SupabaseDataService = {
     if (!isSupabaseConfigured || !supabase) return false;
     const { error } = await supabase.from('daily_quotes').upsert(mapDailyQuoteToDb(quote));
     if (error) console.error('[Supabase] Failed to update daily quote:', error.message);
+    return !error;
+  },
+
+  // --- SHOWCASE ITEMS ---
+  async fetchShowcaseItems(): Promise<ShowcaseItem[] | null> {
+    if (!isSupabaseConfigured || !supabase) return null;
+    const { data, error } = await supabase
+      .from('showcase_items')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    if (error) {
+      console.warn('[Supabase] Failed to fetch showcase items:', error.message);
+      return null;
+    }
+    return data.map(mapShowcaseFromDb);
+  },
+
+  async upsertShowcaseItem(item: ShowcaseItem, sortOrder: number = 0): Promise<boolean> {
+    if (!isSupabaseConfigured || !supabase) return false;
+    const { error } = await supabase
+      .from('showcase_items')
+      .upsert(mapShowcaseToDb(item, sortOrder));
+    if (error) console.error('[Supabase] Failed to upsert showcase item:', error.message);
+    return !error;
+  },
+
+  async deleteShowcaseItem(id: string): Promise<boolean> {
+    if (!isSupabaseConfigured || !supabase) return false;
+    // Also delete by alias if it's darpan-fest <-> showcase_darpan etc.
+    const idsToDelete = [id];
+    if (id === 'darpan-fest') idsToDelete.push('showcase_darpan');
+    if (id === 'showcase_darpan') idsToDelete.push('darpan-fest');
+    if (id === 'talk-series') idsToDelete.push('showcase_talkseries');
+    if (id === 'showcase_talkseries') idsToDelete.push('talk-series');
+    if (id === 'quantum-tech') idsToDelete.push('showcase_ai_conclave');
+    if (id === 'showcase_ai_conclave') idsToDelete.push('quantum-tech');
+
+    const { error } = await supabase
+      .from('showcase_items')
+      .delete()
+      .in('id', idsToDelete);
+    if (error) console.error('[Supabase] Failed to delete showcase item:', error.message);
+    return !error;
+  },
+
+  async bulkSyncShowcaseItems(items: ShowcaseItem[]): Promise<boolean> {
+    if (!isSupabaseConfigured || !supabase) return false;
+    const rows = items.map((item, idx) => mapShowcaseToDb(item, idx));
+    const { error } = await supabase.from('showcase_items').upsert(rows);
+    if (error) console.error('[Supabase] Failed to bulk sync showcase items:', error.message);
     return !error;
   },
 };
