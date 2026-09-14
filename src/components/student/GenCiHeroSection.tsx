@@ -194,7 +194,7 @@ export const GenCiHeroSection: React.FC<GenCiHeroSectionProps> = ({
       </div>
 
       {/* Main Content Stage: Fully Filled & Responsive Full Page Utilization */}
-      <div className="relative z-10 flex flex-col justify-between p-6 sm:p-10 lg:p-14 min-h-[580px] lg:min-h-[640px] text-white space-y-8">
+      <div className="relative z-10 flex flex-col justify-between p-5 sm:p-10 lg:p-14 min-h-[520px] sm:min-h-[580px] lg:min-h-[640px] text-white space-y-6 sm:space-y-8">
         
         {/* =========================================================================
             HEADER BAR: CHRIST LOGO & OFFICIAL DIRECTORATE CREST + TEMPLATE SWITCHER
@@ -415,24 +415,24 @@ export const GenCiHeroSection: React.FC<GenCiHeroSectionProps> = ({
             </div>
 
             {/* Keynote Guest Panel Preview */}
-            <div className="pt-2 flex items-center gap-4 flex-wrap">
-              <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider">
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider shrink-0">
                 Featured Guests ({displaySpeakers.length}):
               </span>
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
                 {displaySpeakers.map((spk, idx) => (
                   <div 
                     key={spk.id || idx} 
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 hover:border-[#C5A063]/50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 hover:border-[#C5A063]/50 transition-colors shrink-0"
                   >
                     <img
                       src={spk.avatar}
                       alt={spk.name}
-                      className="w-6 h-6 rounded-full object-cover ring-1 ring-white/30"
+                      className="w-6 h-6 rounded-full object-cover ring-1 ring-white/30 shrink-0"
                     />
                     <div className="text-left leading-none">
-                      <span className="text-xs font-bold text-white block">{spk.name}</span>
-                      <span className="text-[9px] text-white/70">{spk.org || spk.role}</span>
+                      <span className="text-xs font-bold text-white block whitespace-nowrap">{spk.name}</span>
+                      <span className="text-[9px] text-white/70 whitespace-nowrap">{spk.org || spk.role}</span>
                     </div>
                   </div>
                 ))}
@@ -444,13 +444,13 @@ export const GenCiHeroSection: React.FC<GenCiHeroSectionProps> = ({
         {/* =========================================================================
             BOTTOM ACTION BAR & SCROLL DOWN TRIGGER
             ========================================================================= */}
-        <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="pt-5 sm:pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           
           {/* Primary Action Buttons */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <button
               onClick={handleReserve}
-              className={`inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all shadow-xl active:scale-95 ${
+              className={`inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all shadow-xl active:scale-95 w-full sm:w-auto ${
                 isReserved
                   ? 'bg-emerald-500 text-white hover:bg-emerald-600'
                   : 'bg-gradient-to-r from-[#C5A063] via-[#E2C78A] to-[#C5A063] text-black hover:brightness-110 shadow-[0_4px_24px_rgba(197,160,99,0.4)]'
@@ -471,7 +471,7 @@ export const GenCiHeroSection: React.FC<GenCiHeroSectionProps> = ({
 
             <button
               onClick={onNavigateToEvents}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold border border-white/20 transition-all active:scale-95 backdrop-blur-md"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold border border-white/20 transition-all active:scale-95 backdrop-blur-md w-full sm:w-auto"
             >
               <span>Full Event Dossier</span>
               <ArrowRight className="w-4 h-4 text-white/80" />
@@ -481,7 +481,7 @@ export const GenCiHeroSection: React.FC<GenCiHeroSectionProps> = ({
           {/* Prompt to explore Scrolling Reel Towards Down */}
           <button
             onClick={onExploreReel}
-            className="flex items-center gap-2 text-xs font-bold text-white/80 hover:text-white group transition-colors self-start sm:self-auto py-2"
+            className="flex items-center justify-center sm:justify-start gap-2 text-xs font-bold text-white/80 hover:text-white group transition-colors w-full sm:w-auto py-2"
           >
             <span>Live Campus Highlights & Scrolling Reel Below</span>
             <div className="p-1.5 rounded-full bg-white/10 group-hover:bg-white/20 group-hover:translate-y-1 transition-all">

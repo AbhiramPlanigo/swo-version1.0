@@ -24,18 +24,18 @@ export const StudentFooter: React.FC<StudentFooterProps> = ({ onSelectTab }) => 
   const [isCharterOpen, setIsCharterOpen] = useState(false);
 
   return (
-    <footer className="relative w-full bg-white dark:bg-[#0E131F] text-[#16212F] dark:text-[#F8FAFC] border-t border-[#E2E8F0] dark:border-white/10 pt-16 pb-28 lg:pb-14 mt-16 lg:mt-20 overflow-hidden transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
+    <footer className="relative w-full bg-white dark:bg-[#0E131F] text-[#16212F] dark:text-[#F8FAFC] border-t border-[#E2E8F0] dark:border-white/10 pt-12 sm:pt-16 pb-36 lg:pb-14 mt-12 sm:mt-16 lg:mt-20 overflow-hidden transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12 relative z-10">
         
         {/* Top Header Row with Logo & Quick Contact */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-10 border-b border-[#E2E8F0] dark:border-white/10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 sm:pb-10 border-b border-[#E2E8F0] dark:border-white/10">
           <SWOLogo size="lg" showText={true} />
           
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <span className="text-xs text-[#536275] dark:text-[#94A3B8]">Need immediate support or have an inquiry?</span>
             <a
               href="mailto:swo.yeshwanthpur@christuniversity.in"
-              className="inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2.5 rounded-full bg-[#3A5982] dark:bg-[#0071E3] text-white text-xs font-semibold hover:bg-[#2D476C] dark:hover:bg-[#0062C4] transition-colors shadow-xs"
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-4 py-2.5 rounded-full bg-[#3A5982] dark:bg-[#0071E3] text-white text-xs font-semibold hover:bg-[#2D476C] dark:hover:bg-[#0062C4] transition-colors shadow-xs"
             >
               <span>Contact Student Welfare Office</span>
               <ArrowUpRight className="w-3.5 h-3.5" />

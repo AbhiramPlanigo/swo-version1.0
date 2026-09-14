@@ -166,6 +166,8 @@ interface AppContextType {
   createSurvey: (survey: Omit<ResearchSurvey, 'id' | 'responsesCount' | 'status'>) => void;
   addResearchSurvey: (survey: ResearchSurvey) => void;
   submitStudentInquiry: (inquiry: Omit<StudentInquiry, 'id' | 'submittedAt' | 'status'>) => void;
+  updateStudentInquiryStatus: (id: string, status: 'Received' | 'Reviewed' | 'Incorporated', adminResponse?: string) => void;
+  deleteStudentInquiry: (id: string) => void;
   deleteSurvey: (id: string) => void;
 
   // Hero Banner & Flagship Showcase Management
@@ -552,6 +554,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           remoteHero,
           remoteQuote,
           remoteShowcases,
+          remoteInquiries,
         ] = await Promise.all([
           SupabaseDataService.fetchEvents(),
           SupabaseDataService.fetchRegistrations(),
@@ -563,6 +566,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           SupabaseDataService.fetchHeroSettings(),
           SupabaseDataService.fetchDailyQuote(),
           SupabaseDataService.fetchShowcaseItems(),
+          SupabaseDataService.fetchInquiries(),
         ]);
 
         if (!isMounted) return;
@@ -590,6 +594,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               setHeroSettings(activeShowcases[0]);
             }
           }
+        }
+        if (remoteInquiries !== null && remoteInquiries.length > 0) {
+          setStudentInquiries(remoteInquiries);
+          setStored('student_inquiries', remoteInquiries);
         }
         if (remoteHero) setHeroSettings(remoteHero);
         if (remoteQuote) setDailyQuote(remoteQuote);
@@ -1633,7 +1641,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       status: 'Received',
     };
     setStudentInquiries((prev) => [newInquiry, ...prev]);
-    showToast('Inquiry Submitted', 'Your event recommendation or welfare question has been routed to the SWO Student Council.', 'success');
+    SupabaseDataService.insertInquiry(newInquiry);
+    showToast('Inquiry Submitted', 'Your inquiry has been routed directly to the Student Welfare Office desk.', 'success');
+  };
+
+  const updateStudentInquiryStatus = (
+    id: string,
+    status: 'Received' | 'Reviewed' | 'Incorporated',
+    adminResponse?: string
+  ) => {
+    setStudentInquiries((prev) =>
+      prev.map((inq) =>
+        inq.id === id
+          ? {
+              ...inq,
+              status,
+              ...(adminResponse !== undefined ? { adminResponse } : {}),
+            }
+          : inq
+      )
+    );
+    SupabaseDataService.updateInquiryStatus(id, status, adminResponse);
+    showToast('Inquiry Updated', `Status updated to ${status}.`, 'info');
+  };
+
+  const deleteStudentInquiry = (id: string) => {
+    setStudentInquiries((prev) => prev.filter((inq) => inq.id !== id));
+    SupabaseDataService.deleteInquiry(id);
+    showToast('Inquiry Deleted', 'Inquiry removed from records.', 'info');
   };
 
   const createSurvey = (surveyData: Omit<ResearchSurvey, 'id' | 'responsesCount' | 'status'>) => {
@@ -1748,6 +1783,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         createSurvey,
         addResearchSurvey,
         submitStudentInquiry,
+        updateStudentInquiryStatus,
+        deleteStudentInquiry,
         deleteSurvey,
 
         heroSettings,

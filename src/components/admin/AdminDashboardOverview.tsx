@@ -25,7 +25,10 @@ import {
   Trash2,
   RotateCcw,
   Check,
-  Sparkles
+  Sparkles,
+  MessageSquare,
+  Mail,
+  CheckCheck
 } from 'lucide-react';
 
 interface AdminDashboardOverviewProps {
@@ -39,7 +42,21 @@ export const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
   onOpenCreateEvent,
   onOpenCreateAnnouncement,
 }) => {
-  const { events, registrations, announcements, certificates, attendanceRecords, adminUser, updateEvent, showToast } = useApp();
+  const { 
+    events, 
+    registrations, 
+    announcements, 
+    certificates, 
+    attendanceRecords, 
+    adminUser, 
+    updateEvent, 
+    showToast,
+    studentInquiries,
+    updateStudentInquiryStatus,
+    deleteStudentInquiry
+  } = useApp();
+
+  const [inquiryFilter, setInquiryFilter] = useState<'All' | 'Received' | 'Reviewed' | 'Incorporated'>('All');
 
   // Quick edit modal for campus event dates & details
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
@@ -481,6 +498,201 @@ export const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* =========================================================================
+          STUDENT WELFARE DESK & PUBLIC INQUIRIES MANAGEMENT (REQUESTED FEATURE)
+          Shows all direct inquiries sent from the public website contact form
+          ========================================================================= */}
+      <AppleCard className="space-y-5 dark:bg-[#141A26] dark:border-white/10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#3A5982]/10 dark:bg-[#3A5982]/20 text-[#3A5982] dark:text-blue-400 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-[#16212F] dark:text-white">
+                  Student Helpdesk & Direct Inquiries
+                </h3>
+                {(studentInquiries || []).filter(i => i.status === 'Received').length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60">
+                    {(studentInquiries || []).filter(i => i.status === 'Received').length} Pending
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#536275] dark:text-slate-400">
+                Incoming student messages, event queries, and venue requests submitted via the campus portal.
+              </p>
+            </div>
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+            {(['All', 'Received', 'Reviewed', 'Incorporated'] as const).map((status) => {
+              const count = status === 'All' 
+                ? (studentInquiries || []).length 
+                : (studentInquiries || []).filter(i => i.status === status).length;
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => setInquiryFilter(status)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                    inquiryFilter === status
+                      ? 'bg-[#3A5982] text-white shadow-xs'
+                      : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-white/15'
+                  }`}
+                >
+                  {status === 'All' ? 'All Inquiries' : status} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Inquiry List */}
+        {(() => {
+          const filtered = (studentInquiries || []).filter(inq => {
+            if (inquiryFilter === 'All') return true;
+            return inq.status === inquiryFilter;
+          });
+
+          if (filtered.length === 0) {
+            return (
+              <div className="py-12 text-center space-y-2">
+                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 mx-auto flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  No inquiries found under "{inquiryFilter}"
+                </p>
+                <p className="text-xs text-slate-400">
+                  New student inquiries submitted through the homepage contact form will appear here in real-time.
+                </p>
+              </div>
+            );
+          }
+
+          return (
+            <div className="space-y-3.5">
+              {filtered.map((inq) => {
+                const statusBadgeClasses = {
+                  Received: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50',
+                  Reviewed: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/50',
+                  Incorporated: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50',
+                }[inq.status] || 'bg-slate-100 text-slate-600 border-slate-200';
+
+                return (
+                  <div
+                    key={inq.id}
+                    className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1A2332] border border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 transition-all space-y-3 shadow-2xs"
+                  >
+                    {/* Header Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-bold text-[#16212F] dark:text-white">
+                            {inq.studentName}
+                          </span>
+                          <span className="text-xs text-[#536275] dark:text-slate-400">
+                            ({inq.studentRegNo || 'Reg No. Pending'} • {inq.studentDept || 'General'})
+                          </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusBadgeClasses}`}>
+                            {inq.status}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-[#536275] dark:text-slate-400 pt-0.5">
+                          <a
+                            href={`mailto:${inq.studentEmail}`}
+                            className="inline-flex items-center gap-1 hover:text-[#3A5982] dark:hover:text-blue-400 hover:underline"
+                            title="Send email response"
+                          >
+                            <Mail className="w-3.5 h-3.5 text-[#3A5982] dark:text-blue-400" />
+                            <span>{inq.studentEmail}</span>
+                          </a>
+                          <span>•</span>
+                          <span>{inq.submittedAt ? new Date(inq.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently'}</span>
+                        </div>
+                      </div>
+
+                      {/* Category Badge */}
+                      <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 self-start sm:self-auto shrink-0">
+                        {inq.category}
+                      </span>
+                    </div>
+
+                    {/* Inquiry Message Body */}
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#141A26] border border-slate-100 dark:border-white/5 text-xs sm:text-sm text-[#16212F] dark:text-slate-200 leading-relaxed">
+                      "{inq.question}"
+                    </div>
+
+                    {/* Action Bar */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-gray-50 dark:border-white/5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {inq.status !== 'Reviewed' && (
+                          <button
+                            type="button"
+                            onClick={() => updateStudentInquiryStatus(inq.id, 'Reviewed')}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Mark Reviewed</span>
+                          </button>
+                        )}
+
+                        {inq.status !== 'Incorporated' && (
+                          <button
+                            type="button"
+                            onClick={() => updateStudentInquiryStatus(inq.id, 'Incorporated')}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+                          >
+                            <CheckCheck className="w-3.5 h-3.5" />
+                            <span>Mark Resolved / Incorporated</span>
+                          </button>
+                        )}
+
+                        {inq.status !== 'Received' && (
+                          <button
+                            type="button"
+                            onClick={() => updateStudentInquiryStatus(inq.id, 'Received')}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            <span>Reset to Pending</span>
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`mailto:${inq.studentEmail}?subject=Response from Student Welfare Office: ${encodeURIComponent(inq.category)}&body=Dear ${encodeURIComponent(inq.studentName)},%0D%0A%0D%0AThank you for contacting the Student Welfare Office, Bangalore Yeshwanthpur Campus.%0D%0A%0D%0ARegarding your message:%0D%0A%22${encodeURIComponent(inq.question)}%22%0D%0A%0D%0A[Please write your response here]%0D%0A%0D%0AWarm regards,%0D%0AStudent Welfare Office Desk%0D%0ACHRIST (Deemed to be University)`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#3A5982] hover:bg-[#2D476C] text-white transition-colors"
+                        >
+                          <Mail className="w-3.5 h-3.5" />
+                          <span>Reply via Email</span>
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to remove this student inquiry?')) {
+                              deleteStudentInquiry(inq.id);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                          title="Delete inquiry"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </AppleCard>
 
       {/* QUICK EVENT DATES & DETAILS MODAL */}
       {editingEvent && (

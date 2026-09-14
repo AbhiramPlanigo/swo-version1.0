@@ -11,6 +11,7 @@ import {
   DailyQuote,
   EventResult,
   ShowcaseItem,
+  StudentInquiry,
 } from '../types';
 
 // ==============================================================================
@@ -346,6 +347,34 @@ export const mapShowcaseToDb = (item: ShowcaseItem, sortOrder: number = 0): Reco
   updated_at: new Date().toISOString(),
 });
 
+export const mapInquiryFromDb = (row: any): StudentInquiry => ({
+  id: row.id,
+  studentId: row.student_id,
+  studentName: row.student_name,
+  studentRegNo: row.student_reg_no,
+  studentDept: row.student_dept || 'General',
+  studentEmail: row.student_email,
+  category: row.category || 'General Welfare',
+  question: row.question || '',
+  submittedAt: row.submitted_at || new Date().toISOString(),
+  status: row.status || 'Received',
+  adminResponse: row.admin_response || '',
+});
+
+export const mapInquiryToDb = (inq: StudentInquiry): Record<string, any> => ({
+  id: inq.id,
+  student_id: inq.studentId,
+  student_name: inq.studentName,
+  student_reg_no: inq.studentRegNo,
+  student_dept: inq.studentDept,
+  student_email: inq.studentEmail,
+  category: inq.category,
+  question: inq.question,
+  submitted_at: inq.submittedAt,
+  status: inq.status,
+  admin_response: inq.adminResponse || '',
+});
+
 // ==============================================================================
 // SUPABASE DATA SERVICE OPERATIONS
 // ==============================================================================
@@ -671,6 +700,51 @@ export const SupabaseDataService = {
     const rows = items.map((item, idx) => mapShowcaseToDb(item, idx));
     const { error } = await supabase.from('showcase_items').upsert(rows);
     if (error) console.error('[Supabase] Failed to bulk sync showcase items:', error.message);
+    return !error;
+  },
+
+  // --- STUDENT INQUIRIES ---
+  async fetchInquiries(): Promise<StudentInquiry[] | null> {
+    if (!isSupabaseConfigured || !supabase) return null;
+    const { data, error } = await supabase
+      .from('student_inquiries')
+      .select('*')
+      .order('submitted_at', { ascending: false });
+    if (error) {
+      console.warn('[Supabase] Failed to fetch student inquiries:', error.message);
+      return null;
+    }
+    return data.map(mapInquiryFromDb);
+  },
+
+  async insertInquiry(inquiry: StudentInquiry): Promise<boolean> {
+    if (!isSupabaseConfigured || !supabase) return false;
+    const { error } = await supabase
+      .from('student_inquiries')
+      .insert(mapInquiryToDb(inquiry));
+    if (error) console.error('[Supabase] Failed to insert student inquiry:', error.message);
+    return !error;
+  },
+
+  async updateInquiryStatus(id: string, status: string, adminResponse?: string): Promise<boolean> {
+    if (!isSupabaseConfigured || !supabase) return false;
+    const updates: Record<string, any> = { status };
+    if (adminResponse !== undefined) updates.admin_response = adminResponse;
+    const { error } = await supabase
+      .from('student_inquiries')
+      .update(updates)
+      .eq('id', id);
+    if (error) console.error('[Supabase] Failed to update inquiry status:', error.message);
+    return !error;
+  },
+
+  async deleteInquiry(id: string): Promise<boolean> {
+    if (!isSupabaseConfigured || !supabase) return false;
+    const { error } = await supabase
+      .from('student_inquiries')
+      .delete()
+      .eq('id', id);
+    if (error) console.error('[Supabase] Failed to delete inquiry:', error.message);
     return !error;
   },
 };

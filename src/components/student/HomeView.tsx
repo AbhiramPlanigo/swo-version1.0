@@ -52,7 +52,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onNavigateToCertificates,
   onOpenMediaUpload,
 }) => {
-  const { events, announcements, registrations, studentUser, openLoginModal } = useApp();
+  const { events, announcements, registrations, studentUser, openLoginModal, submitStudentInquiry } = useApp();
 
   // Navigation router helper
   const navigateTo = (tab: StudentNavTab) => {
@@ -201,6 +201,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const handleInquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inquiryForm.message.trim()) return;
+
+    submitStudentInquiry({
+      studentId: studentUser?.id || inquiryForm.regNo || `guest_${Date.now()}`,
+      studentName: `${inquiryForm.firstName} ${inquiryForm.lastName}`.trim() || 'Student',
+      studentRegNo: inquiryForm.regNo || 'N/A',
+      studentDept: studentUser?.department || 'General Inquiry',
+      studentEmail: inquiryForm.email,
+      category: inquiryForm.category as any,
+      question: inquiryForm.message,
+    });
+
     setFormSubmitted(true);
     setTimeout(() => {
       setInquiryForm((prev) => ({ ...prev, message: '' }));
@@ -209,7 +220,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   };
 
   return (
-    <div className="space-y-16 sm:space-y-24 pb-20">
+    <div className="space-y-12 sm:space-y-24 pb-20">
       
       {/* =========================================================================
           HERO STAGE: BIG & FULLY FILLED GENCI UI SHOWCASE (TALK SERIES & CONCLAVE)
@@ -378,7 +389,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* Large Panoramic Showcase Card */}
-        <div className="relative overflow-hidden rounded-[28px] lg:rounded-[36px] bg-[#16212F] min-h-[460px] sm:min-h-[520px] flex flex-col justify-between text-white p-6 sm:p-10 lg:p-12 shadow-xl border border-[#E2E8F0]">
+        <div className="relative overflow-hidden rounded-[24px] sm:rounded-[28px] lg:rounded-[36px] bg-[#16212F] min-h-[440px] sm:min-h-[520px] flex flex-col justify-between text-white p-4 sm:p-8 lg:p-12 shadow-xl border border-[#E2E8F0] dark:border-white/10">
           
           {/* Background Photograph */}
           <img
@@ -391,8 +402,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-[#16212F] via-[#16212F]/40 to-transparent pointer-events-none" />
 
           {/* Giant Translucent Architectural Display Typographic Watermark */}
-          <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 overflow-hidden pointer-events-none select-none flex justify-center opacity-15">
-            <span className="font-serif tracking-widest text-white text-[13vw] font-bold uppercase whitespace-nowrap">
+          <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 overflow-hidden pointer-events-none select-none flex justify-center opacity-10 sm:opacity-15">
+            <span className="font-serif tracking-widest text-white text-[16vw] sm:text-[13vw] font-bold uppercase whitespace-nowrap">
               {currentVenue.watermark}
             </span>
           </div>
@@ -400,7 +411,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Top Row: Venue Counter & Category */}
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-white text-xs font-bold border border-white/20">
+              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-white text-[11px] sm:text-xs font-bold border border-white/20">
                 {currentVenue.number}
               </span>
               <span className="text-white/80 text-xs hidden sm:inline">
@@ -409,33 +420,33 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-[#C5A063] text-white text-xs font-bold shadow-xs">
+              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-[#C5A063] text-white text-[11px] sm:text-xs font-bold shadow-xs">
                 Capacity: {currentVenue.capacity}
               </span>
             </div>
           </div>
 
           {/* Bottom Area: Venue Title, Features & Interactive Nav Buttons */}
-          <div className="relative z-10 space-y-4 max-w-2xl">
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-[#C5A063] tracking-widest uppercase">
+          <div className="relative z-10 space-y-3 sm:space-y-4 max-w-2xl">
+            <div className="space-y-1 sm:space-y-2">
+              <span className="text-[10px] sm:text-xs font-semibold text-[#C5A063] tracking-widest uppercase block">
                 {currentVenue.features}
               </span>
-              <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+              <h3 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
                 {currentVenue.name}
               </h3>
-              <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-light">
+              <p className="text-xs sm:text-sm lg:text-base text-slate-200 leading-relaxed font-light line-clamp-3 sm:line-clamp-none">
                 {currentVenue.description}
               </p>
             </div>
 
-            {/* Venue Switcher Selector Buttons */}
-            <div className="flex flex-wrap items-center gap-2 pt-2">
+            {/* Venue Switcher Selector Buttons - Horizontal swipe on mobile, wrap on desktop */}
+            <div className="flex items-center gap-2 pt-1 sm:pt-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 sm:flex-wrap">
               {venues.map((v, idx) => (
                 <button
                   key={v.id}
                   onClick={() => setActiveVenueIdx(idx)}
-                  className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 flex items-center justify-center ${
+                  className={`shrink-0 min-h-[36px] sm:min-h-[40px] px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 flex items-center justify-center ${
                     activeVenueIdx === idx
                       ? 'bg-white text-[#16212F] shadow-sm'
                       : 'bg-black/40 text-white/80 hover:bg-black/60 border border-white/15'
@@ -448,22 +459,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Minimalist Prev / Next Buttons */}
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between pt-6 border-t border-white/15 text-xs text-white/80 gap-3">
-            <span>Bookings coordinated via Student Welfare Office Desk</span>
-            <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="relative z-10 flex flex-row items-center justify-between pt-4 sm:pt-6 border-t border-white/15 text-[11px] sm:text-xs text-white/80 gap-2">
+            <span className="truncate pr-2">Bookings coordinated via Student Welfare Office Desk</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button
                 onClick={() => setActiveVenueIdx((prev) => (prev === 0 ? venues.length - 1 : prev - 1))}
                 aria-label="Previous Venue"
-                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center border border-white/20 transition-colors active:scale-95"
+                className="w-9 h-9 sm:w-11 sm:h-11 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center border border-white/20 transition-colors active:scale-95"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={() => setActiveVenueIdx((prev) => (prev === venues.length - 1 ? 0 : prev + 1))}
                 aria-label="Next Venue"
-                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center border border-white/20 transition-colors active:scale-95"
+                className="w-9 h-9 sm:w-11 sm:h-11 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center border border-white/20 transition-colors active:scale-95"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
@@ -1005,22 +1016,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Right Column: High-End Contact Form matching Oxford Reference */}
-          <div className="lg:col-span-7 bg-[#F8FAFC] dark:bg-[#1A2332] rounded-[24px] border border-[#E2E8F0] dark:border-white/10 p-6 sm:p-8 transition-colors">
-            <h3 className="text-lg font-bold text-[#16212F] dark:text-white tracking-tight mb-4">
+          <div className="lg:col-span-7 bg-[#F8FAFC] dark:bg-[#1A2332] rounded-[24px] border border-[#E2E8F0] dark:border-white/10 p-4 sm:p-8 transition-colors">
+            <h3 className="text-base sm:text-lg font-bold text-[#16212F] dark:text-white tracking-tight mb-4">
               Send an Official Student Inquiry
             </h3>
 
             {formSubmitted ? (
-              <div className="p-8 text-center space-y-3 bg-white dark:bg-[#141A26] rounded-2xl border border-emerald-200 dark:border-emerald-800">
-                <CheckCircle2 className="w-12 h-12 text-emerald-600 dark:text-emerald-400 mx-auto" />
-                <h4 className="text-base font-bold text-[#16212F] dark:text-white">Inquiry Sent Successfully</h4>
+              <div className="p-6 sm:p-8 text-center space-y-3 bg-white dark:bg-[#141A26] rounded-2xl border border-emerald-200 dark:border-emerald-800">
+                <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-600 dark:text-emerald-400 mx-auto" />
+                <h4 className="text-sm sm:text-base font-bold text-[#16212F] dark:text-white">Inquiry Sent Successfully</h4>
                 <p className="text-xs text-[#536275] dark:text-[#94A3B8]">
                   Your request has been logged with the Student Welfare Office desk. An SWO coordinator will reach out via campus email.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleInquirySubmit} className="space-y-4 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <form onSubmit={handleInquirySubmit} className="space-y-3.5 sm:space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-[#16212F] dark:text-white font-semibold mb-1">First Name</label>
                     <input
@@ -1028,7 +1039,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       required
                       value={inquiryForm.firstName}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, firstName: e.target.value })}
-                      className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
+                      className="w-full min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
                       placeholder="e.g. Aaron"
                     />
                   </div>
@@ -1039,13 +1050,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       required
                       value={inquiryForm.lastName}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, lastName: e.target.value })}
-                      className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
+                      className="w-full min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
                       placeholder="e.g. D'Souza"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-[#16212F] dark:text-white font-semibold mb-1">Student University Email</label>
                     <input
@@ -1053,7 +1064,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       required
                       value={inquiryForm.email}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
-                      className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
+                      className="w-full min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
                       placeholder="name.ypr@christuniversity.in"
                     />
                   </div>
@@ -1064,7 +1075,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       required
                       value={inquiryForm.regNo}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, regNo: e.target.value })}
-                      className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
+                      className="w-full min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
                       placeholder="e.g. 2320145"
                     />
                   </div>
@@ -1075,7 +1086,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <select
                     value={inquiryForm.category}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, category: e.target.value })}
-                    className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
+                    className="w-full min-h-[42px] sm:min-h-[44px] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982]"
                   >
                     <option value="Event Registration">Event Registration & QR Entry Pass</option>
                     <option value="Auditorium Booking">Campus Venue & Stage Rehearsal Booking</option>
@@ -1092,14 +1103,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     required
                     value={inquiryForm.message}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
-                    className="w-full p-4 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982] resize-none"
+                    className="w-full p-3.5 sm:p-4 rounded-xl bg-white dark:bg-[#141A26] border border-[#CBD5E1] dark:border-white/15 text-[#16212F] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3A5982] resize-none"
                     placeholder="Describe your inquiry or requirement..."
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full min-h-[48px] py-3.5 rounded-full bg-[#3A5982] hover:bg-[#2D476C] text-white font-bold text-xs tracking-wide transition-all shadow-sm flex items-center justify-center gap-2 active:scale-98"
+                  className="w-full min-h-[46px] sm:min-h-[48px] py-3 sm:py-3.5 px-4 rounded-xl sm:rounded-full bg-[#3A5982] hover:bg-[#2D476C] text-white font-bold text-xs sm:text-sm tracking-wide transition-all shadow-sm flex items-center justify-center gap-2 active:scale-98"
                 >
                   <span>Send Inquiry to Student Welfare Office</span>
                   <Send className="w-3.5 h-3.5" />
